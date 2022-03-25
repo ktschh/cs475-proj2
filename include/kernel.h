@@ -1,13 +1,15 @@
 /* kernel.h */
 
+#define AGING TRUE		// AGING CONSTANT
+
 /* General type declarations used throughout the kernel */
 
 typedef	unsigned char	    byte;
 typedef unsigned int        word;
 typedef unsigned long       dword;
 typedef char                int8;
-typedef	short		    int16;
-typedef	int		    int32;
+typedef	short		    	int16;
+typedef	int		    		int32;
 typedef unsigned char       uint8;
 typedef	unsigned short	    uint16;
 typedef	unsigned int	    uint32;

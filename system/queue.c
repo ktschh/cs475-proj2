@@ -65,7 +65,7 @@ bool8	isfull(struct queue *q)
  *
  * @return pid on success, SYSERR otherwise
  */
-pid32 enqueue(pid32 pid, struct queue *q)
+pid32 enqueue(pid32 pid, struct queue *q, int32 key)
 {
 	if (isfull(q) || isbadpid(pid)) {
 		return SYSERR;
@@ -76,9 +76,53 @@ pid32 enqueue(pid32 pid, struct queue *q)
 
 	//TODO - initialize the new QEntry
 	newEntry->pid = pid;
-	newEntry->prev = q->tail;
-	newEntry->next = NULL;
+	newEntry->key = key;
+	//newEntry->prev = q->tail;
+	//newEntry->next = NULL;
 
+	struct qentry *currEntry = q->head;
+	while (currEntry != NULL)
+	{
+		if (currEntry->key < newEntry->key)
+		{			
+			newEntry->next = currEntry;
+			// check if currEntry is the head
+			if (q->head->pid == currEntry->pid)
+			{
+				newEntry->prev = NULL;
+				currEntry->prev = newEntry;
+				q->head = newEntry;
+				break;
+			}
+			else {
+				newEntry->prev = currEntry->prev;
+				currEntry->prev->next = newEntry;
+				currEntry->prev = newEntry;
+				break;
+			}
+		}
+		else if (q->tail->pid == currEntry->pid)
+		{
+			currEntry->next = newEntry;
+			q->tail = newEntry;
+			newEntry->next = NULL;
+			newEntry->prev = currEntry;
+			break;
+		}
+		else if (currEntry->key == newEntry->key)
+		{
+			newEntry->next = currEntry->next;
+			newEntry->prev = currEntry;
+			currEntry->next->prev = newEntry;
+			currEntry->next = newEntry;
+			break;
+			
+		}
+		currEntry = currEntry->next;
+	}
+
+
+	/*
 	//TODO - insert into tail of queue
 
 	//link the new entry to the last queue entry
@@ -89,10 +133,16 @@ pid32 enqueue(pid32 pid, struct queue *q)
 	//update Queue tail to point to  new entry
 	q->tail = newEntry;
 
+	*/
+
 	//update Queue head if needed
 	if (q->head == NULL)
+	{
 		q->head = newEntry;
-
+		newEntry->next = NULL;
+		newEntry->prev = NULL;
+	}
+	
 	//update queue size
 	q->size++;
 

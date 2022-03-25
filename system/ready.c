@@ -24,7 +24,7 @@ status	ready(pid32 pid, bool8 resch)
 	prptr->prstate = PR_READY;	//DC REMOVE
 
 	// TODO - enqueue the process
-	enqueue(pid, readyqueue); //DC REMOVE
+	enqueue(pid, readyqueue, prptr->prprio); //DC REMOVE
 
 	if (resch == RESCHED_YES)
 		resched();

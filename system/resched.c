@@ -18,21 +18,40 @@ void	resched(void)		// assumes interrupts are disabled
 	}
 
 	// Point to process table entry for the current (old) process
-// DC REMOVE
+	// DC REMOVE
 
 	ptold = &proctab[currpid];
+	pid32 save = currpid;
 
-        if (ptold->prstate == PR_CURR) {
-                // Old process got preempted; place back on ready queue
-                ptold->prstate = PR_READY;
-                enqueue(currpid, readyqueue);
-        }
+    if (ptold->prstate == PR_CURR) {
+            // Old process got preempted; place back on ready queue
+            ptold->prstate = PR_READY;
+            enqueue(currpid, readyqueue, ptold->prprio);
+    }
 
-        // Force context switch to next ready process
-        currpid = dequeue(readyqueue);
-        ptnew = &proctab[currpid];
-        ptnew->prstate = PR_CURR;
-// DC REMOVE END 
+    // Force context switch to next ready process
+    currpid = dequeue(readyqueue);
+    ptnew = &proctab[currpid];
+    ptnew->prstate = PR_CURR;
+
+	// AGING POLICY
+	if (AGING)
+	{
+		//kprintf("I'm here\n");
+		int upgrading = readyqueue->size;
+		int i;
+		struct qentry *currEntry = readyqueue->tail;
+		for (i = 0; i < upgrading; i++)
+		{
+			if (currEntry->pid != save || currEntry->pid != 0)
+			{
+				currEntry->key = currEntry->key++;
+			}
+			currEntry = currEntry->prev;
+		}
+	}
+
+	// DC REMOVE END 
 	// TODO - check ptold's state. If it's running, put it on the ready queue and change state to ready
 
 	// TODO - dequeue next process off the ready queue and point ptnew to it
