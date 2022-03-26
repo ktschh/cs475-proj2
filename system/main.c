@@ -39,7 +39,13 @@ int	main(uint32 argc, uint32 *argv)
 	ready(create((void*) printpid, INITSTK, 5, "PRINTER-B", 2, 1, args1++), FALSE);
 	ready(create((void*) printpid, INITSTK, 10, "PRINTER-C", 2, 1, args1++), FALSE);
 	ready(create((void*) printpid, INITSTK, 5, "PRINTER-D", 2, 1, args1++), FALSE);
-	ready(create((void*) bigargs, INITSTK, 5, "BIGARGS", 2, 6, args2), FALSE);
+	ready(create((void*) printpid, INITSTK, 1, "PRINTER-E", 2, 1, args1++), FALSE);
+	//ready(create((void*) printpid, INITSTK, 11, "PRINTER-F", 2, 1, args1), FALSE);
+	//ready(create((void*) printpid, INITSTK, 8, "PRINTER-G", 2, 1, args1), FALSE);
+	ready(create((void*) bigargs, INITSTK, 1, "BIGARGS-1", 2, 6, args2), FALSE);
+	ready(create((void*) bigargs, INITSTK, 2, "BIGARGS-2", 2, 6, args2), FALSE);
+	ready(create((void*) bigargs, INITSTK, 9, "BIGARGS-3", 2, 6, args2), FALSE);
+
 
 	return 0;
 }

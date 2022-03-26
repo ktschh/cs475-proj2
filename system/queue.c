@@ -16,7 +16,7 @@ void	printqueue(struct queue *q)
 		struct qentry *curr = q->head;
 		while (curr != NULL)
 		{
-			kprintf("(pid=%u)", curr->pid);
+			kprintf("(pid=%u, key=%d)", curr->pid, curr->key);
 			curr = curr->next;
 		}
 	}
@@ -83,41 +83,46 @@ pid32 enqueue(pid32 pid, struct queue *q, int32 key)
 	struct qentry *currEntry = q->head;
 	while (currEntry != NULL)
 	{
-		if (currEntry->key < newEntry->key)
-		{			
-			newEntry->next = currEntry;
-			// check if currEntry is the head
-			if (q->head->pid == currEntry->pid)
-			{
-				newEntry->prev = NULL;
-				currEntry->prev = newEntry;
-				q->head = newEntry;
-				break;
-			}
-			else {
-				newEntry->prev = currEntry->prev;
-				currEntry->prev->next = newEntry;
-				currEntry->prev = newEntry;
-				break;
-			}
-		}
-		else if (q->tail->pid == currEntry->pid)
+		// case where insertion is at the head
+		if (currEntry->pid == q->head->pid && newEntry->key > currEntry->key) 
 		{
-			currEntry->next = newEntry;
+			q->head = newEntry;
+			newEntry->next = currEntry;
+			newEntry->prev = NULL;
+			currEntry->prev = newEntry;
+			break;
+		}
+
+		// case where insertion is at the tail
+		else if (currEntry->pid == q->tail->pid && newEntry->key <= currEntry->key)
+		{
 			q->tail = newEntry;
 			newEntry->next = NULL;
 			newEntry->prev = currEntry;
+			currEntry->next = newEntry;
 			break;
 		}
-		else if (currEntry->key == newEntry->key)
+
+		// case where inserted before (greater)
+		else if (newEntry->key > currEntry->key)
+		{
+			newEntry->next = currEntry;
+			newEntry->prev = currEntry->prev;
+			currEntry->prev->next = newEntry;
+			currEntry->prev = newEntry;
+			break;
+		}
+
+		// case where inserted after (equals)
+		else if (newEntry->key == currEntry->key)
 		{
 			newEntry->next = currEntry->next;
 			newEntry->prev = currEntry;
 			currEntry->next->prev = newEntry;
 			currEntry->next = newEntry;
 			break;
-			
 		}
+
 		currEntry = currEntry->next;
 	}
 
@@ -139,12 +144,15 @@ pid32 enqueue(pid32 pid, struct queue *q, int32 key)
 	if (q->head == NULL)
 	{
 		q->head = newEntry;
-		newEntry->next = NULL;
-		newEntry->prev = NULL;
+		q->tail = newEntry;
+		//newEntry->next = NULL;
+		//newEntry->prev = NULL;
 	}
 	
 	//update queue size
 	q->size++;
+
+	//printqueue(q);
 
 	return pid;
 }
